@@ -253,27 +253,32 @@ footer.site h4{color:#EDE5E3;font-family:var(--f-m);font-size:10px;letter-spacin
   <div class="wrap">
     <p class="eyebrow">Step one</p>
     <h2>What are you actually looking at?</h2>
-    <p class="lede">Damp gets treated as one problem. It is at least four, with different causes, different fixes and different people responsible for them. Answer two quick questions and we will tell you which is most likely.</p>
+    <p class="lede">Damp gets treated as one problem. It is at least four, and they have different causes, different fixes and different people responsible. Answer these and we will tell you which is most likely.</p>
 
-    <div class="card q" id="q1" style="margin-top:26px">
-      <label class="fl">Where is the damp or mould showing up?</label>
-      <div class="opts" data-g="where" data-mode="one">
-        <button class="opt" data-v="cold">Cold spots<small>Corners of outside walls, behind furniture, around windows, ceiling edges</small></button>
-        <button class="opt" data-v="low">Low down<small>A band or "tide mark" on ground-floor walls, up to about a metre high</small></button>
-        <button class="opt" data-v="patch">A distinct patch<small>One area of wall or ceiling, sometimes worse after rain</small></button>
-        <button class="opt" data-v="wet">Near pipes<small>Under a sink, around the bath, below the bathroom, or a constantly wet patch</small></button>
+    <div class="card" style="margin-top:26px">
+      <label class="fl">Your home is</label>
+      <div class="opts" data-g="tenure" data-mode="one" style="margin-bottom:24px">
+        <button class="opt" data-v="private">Privately rented<small>From a landlord or letting agent</small></button>
+        <button class="opt" data-v="social">Social housing<small>Council or housing association</small></button>
+        <button class="opt" data-v="owner">I own it<small>Including a leasehold flat</small></button>
       </div>
-    </div>
 
-    <div class="card q" id="q2" style="margin-top:14px;display:none">
-      <label class="fl">When is it at its worst?</label>
-      <div class="opts" data-g="when" data-mode="one">
-        <button class="opt" data-v="winter">Winter and cold weather<small>Windows stream with condensation</small></button>
-        <button class="opt" data-v="rain">During or after heavy rain</button>
-        <button class="opt" data-v="always">All year round<small>It never really dries out</small></button>
+      <label class="fl">What can you see? Choose everything that applies</label>
+      <div class="opts" data-g="signs" data-mode="many">
+        <button class="opt" data-v="tide">A tide mark low down the wall<small>A fairly level line, usually below waist height</small></button>
+        <button class="opt" data-v="mould">Black spotted mould<small>In corners, on cold walls, behind furniture</small></button>
+        <button class="opt" data-v="plaster">Bubbling, blown or salty plaster<small>Paint lifting, white crystals, crumbling</small></button>
+        <button class="opt" data-v="patch">One patch in one place<small>Under a window, beside a chimney, on one spot</small></button>
+        <button class="opt" data-v="rain">It gets worse after heavy rain<small>Within a day or two of a downpour</small></button>
+        <button class="opt" data-v="winter">Worse in winter, windows stream<small>Better in summer, water on the glass</small></button>
+        <button class="opt" data-v="smell">A musty smell<small>Strongest in one room or near the floor</small></button>
+        <button class="opt" data-v="timber">Soft or crumbling wood<small>Skirtings, floorboards, window frames</small></button>
+        <button class="opt" data-v="fungus">Mushroom-like growth or rust-red dust<small>White strands, orange or red dust</small></button>
+        <button class="opt" data-v="above">Water coming from above<small>Ceiling stain, flat above, roof</small></button>
       </div>
+      <div class="btnrow"><button class="btn" id="diagnose">Show me what this suggests</button></div>
+      <div id="result" role="status" aria-live="polite" style="margin-top:22px"></div>
     </div>
-    <div id="result" role="status" aria-live="polite" style="margin-top:22px"></div>
   </div>
 </div>
 
@@ -464,44 +469,54 @@ footer.site h4{color:#EDE5E3;font-family:var(--f-m);font-size:10px;letter-spacin
 document.getElementById('yr').textContent = new Date().getFullYear();
 
 /* ---------- symptom checker ---------- */
-const verdicts = {
-  cold_winter:{h:'Consistent with condensation and mould',cls:'warn',p:"Black spotted mould in cold corners and on cold walls, worse in winter. Landlords often blame drying washing indoors. Sometimes that is a factor — but so are broken extractor fans, windows that will not open, cold bridging and heating too expensive to run, and those sit on the landlord's side of it."},
-  cold_rain:{h:'Likely condensation — possibly with a leak feeding it',cls:'warn',p:'Cold-spot mould that spikes after rain can mean water is getting into the wall through the roof, gutters or pointing and chilling it further. Worth flagging that it worsens after rain — that detail matters and is worth a proper look, not just a mould wash.'},
-  cold_always:{h:'Condensation mould on a cold structure',cls:'warn',p:"Mould that never really clears on cold walls and corners usually points to a structural cold-bridging or ventilation problem, not anything you're doing."},
-  low_winter:{h:'Worth ruling out rising damp',cls:'warn',p:'A tide mark that is worse in winter is often condensation mimicking rising damp, or a raised outside ground level bridging the damp-proof course. Check outside: is soil, paving or a flowerbed piled above the level of the floor inside? Mention that in your report.'},
-  low_rain:{h:'Penetrating or rising damp',cls:'warn',p:'A low tide-mark that reacts to rain suggests water getting in at or below ground level — a bridged damp-proof course, faulty drainage, or damaged render. Structural, and the landlord’s job either way.'},
-  low_always:{h:'Rising damp is likely',cls:'warn',p:'A persistent tide mark up to about a metre, often with white salty deposits and peeling paper, is the classic sign of a failed or bridged damp-proof course. It never fixes itself no matter how much you ventilate, and needs a proper survey.'},
-  patch_winter:{h:'Penetrating damp or an isolated cold spot',cls:'warn',p:'One distinct patch in winter could be water penetrating from outside, or a localised cold-bridge in the structure. Note exactly where it is and whether it lines up with anything outside — a downpipe, a gutter joint, a chimney.'},
-  patch_rain:{h:'Penetrating damp',cls:'warn',p:'A patch that appears or darkens during and after rain is water finding a way in — roof, gutters, pointing, render, window seals or a chimney. The fix is outside, not inside, and it is the landlord’s to sort.'},
-  patch_always:{h:'Possible long-term leak',cls:'late',p:'A patch that stays wet year-round suggests an ongoing leak. The longer it runs the worse the damage, so report it in writing today.'},
-  wet_winter:{h:'Plumbing leak likely',cls:'late',p:'Damp around pipes, under sinks or below a bathroom is almost always a plumbing or waste-pipe leak, whatever the season. Report it in writing straight away — leaks only get worse.'},
-  wet_rain:{h:'Plumbing or waste-pipe leak',cls:'late',p:'Wet areas near pipework are a plumbing fault until proven otherwise, though rain can add to it if an external waste or overflow is involved.'},
-  wet_always:{h:'Active leak — treat as urgent',cls:'late',p:'A constantly wet area near pipework is an active leak, rotting timber and plaster while it runs. Report it in writing today, and if water is near electrics treat it as an emergency.'}
-};
-const state = { where:'', when:'' };
+const state = { tenure:'', signs:[] };
 document.querySelectorAll('.opts').forEach(g=>{
-  g.setAttribute('role','radiogroup');
+  const single = g.dataset.mode==='one';
+  if(single) g.setAttribute('role','radiogroup');
   g.querySelectorAll('.opt').forEach(b=>{
-    b.setAttribute('role','radio'); b.setAttribute('aria-checked','false');
+    if(single){ b.setAttribute('role','radio'); b.setAttribute('aria-checked','false'); }
+    else b.setAttribute('aria-pressed','false');
     b.addEventListener('click',()=>{
       const k=g.dataset.g;
-      g.querySelectorAll('.opt').forEach(o=>{ o.classList.remove('sel'); o.setAttribute('aria-checked','false'); });
-      b.classList.add('sel'); b.setAttribute('aria-checked','true'); state[k]=b.dataset.v;
-      if(k==='where'){
-        document.getElementById('q2').style.display='block';
-        document.getElementById('result').innerHTML='';
-        document.getElementById('q2').scrollIntoView({behavior:'smooth',block:'nearest'});
+      if(g.dataset.mode==='one'){
+        g.querySelectorAll('.opt').forEach(o=>{ o.classList.remove('sel'); o.setAttribute('aria-checked','false'); });
+        b.classList.add('sel'); b.setAttribute('aria-checked','true'); state[k]=b.dataset.v;
       }
-      if(k==='when' && state.where){
-        const v = verdicts[state.where+'_'+state.when];
-        const box = document.getElementById('result');
-        box.innerHTML = `<div class="dl ${v.cls}"><h4>${v.h}</h4><p style="color:var(--ink);font-size:15.5px;margin-top:6px">${v.p}</p></div>`
-          + '<p class="small">This is an indication from what you have described, not a diagnosis. Only someone standing in the room can confirm the cause.</p>'
-          + '<div class="btnrow"><a class="btn" href="#deadlines">Next — your landlord’s duties</a></div>';
-        box.scrollIntoView({behavior:'smooth',block:'nearest'});
-      }
+      else { b.classList.toggle('sel'); b.setAttribute('aria-pressed', b.classList.contains('sel')); state[k]=[...g.querySelectorAll('.opt.sel')].map(o=>o.dataset.v); }
     });
   });
+});
+
+document.getElementById('diagnose').addEventListener('click',()=>{
+  const s = state.signs, out = [];
+  const box = document.getElementById('result');
+  if(!s.length){ box.innerHTML = '<p class="small" role="alert" style="color:var(--late)">Choose at least one thing you can see.</p>'; return; }
+
+  if(s.includes('fungus'))
+    out.push(['Possible dry rot — get this looked at quickly','Rust-red dust and white strands are the signs of a fungus that spreads through masonry and eats structural timber. It needs a water source, so something is leaking. This is the one form of damp that genuinely gets worse and more expensive the longer it is left. Report it today and use the word "fungus" in your letter.','late']);
+  if(s.includes('timber') && !s.includes('fungus'))
+    out.push(['Wet rot is likely','Soft, dark, crumbling wood in a wet area. Contained and fixable, but the water getting to it has not been stopped. Repairing the wood without finding the leak just buys a year.','warn']);
+  if(s.includes('above'))
+    out.push(['Water is coming from above','A ceiling stain, a flat above, or a roof. In a block of flats this often means a shared roof or a communal downpipe, which is your landlord’s or the freeholder’s problem to resolve — not yours.','warn']);
+  if(s.includes('patch') || s.includes('rain'))
+    out.push(['Points to penetrating damp','Water crossing the wall from outside through a specific fault — cracked render, failed pointing, a split downpipe, a slipped tile, a chimney flashing. It is a building repair, and it is a landlord repair. Note in your letter that it worsens after rain; that detail matters.','warn']);
+  if(s.includes('mould') || s.includes('winter'))
+    out.push(['Consistent with condensation and mould','Black spotted mould in cold corners and on cold walls, worse in winter. Landlords often blame drying washing indoors. Sometimes that is a factor — but so are broken extractor fans, windows that will not open, cold bridging and heating too expensive to run, and those sit on the landlord’s side of it. Awaab’s Law and the fitness-for-habitation duty were written with exactly this situation in mind.','warn']);
+  if((s.includes('tide')||s.includes('plaster')||s.includes('smell')) && !s.includes('rain') && !s.includes('patch'))
+    out.push(['Worth ruling out rising damp','A level tide mark with salty, blown plaster fits rising damp — but it also fits a leak below floor level, ground piled up against an outside wall, or a blocked airbrick. It is diagnosed far more often than it occurs. Whatever the cause, a wall in that condition is your landlord’s to investigate.','warn']);
+  if(!out.length)
+    out.push(['Not clear-cut — report it anyway','What you have described does not point in one direction. That is common, and it is not your job to diagnose it. Your landlord’s duty to investigate is triggered by you telling them there may be damp or mould, not by you proving what it is.','warn']);
+
+  let who = '';
+  if(state.tenure==='private') who = '<p style="font-size:15.5px"><b>You rent privately.</b> Your landlord must keep the structure and installations in repair under Section 11 of the Landlord and Tenant Act 1985, and the property must be fit for human habitation under the Homes (Fitness for Human Habitation) Act 2018. If they do not act, you can take this straight to the county court yourself, or ask your council’s Environmental Health team to inspect under the Housing Health and Safety Rating System, free of charge.</p>';
+  if(state.tenure==='social') who = '<p style="font-size:15.5px"><b>You are a social housing tenant.</b> Since 27 October 2025, Awaab’s Law gives your landlord strict deadlines for damp and mould hazards. If they do not act, use their formal complaints process, then go to the Housing Ombudsman — free and independent.</p>';
+  if(state.tenure==='owner') who = '<p style="font-size:15.5px"><b>You own your home.</b> There is no landlord to pursue, so the legal half of this tool will not help you directly. If the fault is in parts shared with neighbours — a communal roof, shared guttering, or a block’s structure — check your lease or raise it with your freeholder or management company. The diagnosis above still stands.</p>';
+
+  box.innerHTML = out.map(([h,p,cls])=>
+    `<div class="dl ${cls}"><h4>${h}</h4><p style="color:var(--ink);font-size:15.5px;margin-top:6px">${p}</p></div>`).join('')
+    + who + '<p class="small">This is an indication from what you have described, not a diagnosis. Only someone standing in the room can confirm the cause.</p>'
+    + '<div class="btnrow"><a class="btn" href="#deadlines">Next — your landlord’s duties</a></div>';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
 });
 
 /* ---------- deadline tabs ---------- */
