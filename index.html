@@ -539,12 +539,13 @@ document.getElementById('genletter').addEventListener('click',()=>{
         extra=g('lextra'), first=g('lfirst'), type=document.getElementById('ltype').value;
   const t = today();
   const firstTxt = first ? new Date(first+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '[date you first noticed it]';
-  const signs = (state.where && state.when) ? ({
-    cold:'cold-spot mould on outside walls, in corners or behind furniture',
-    low:'a tide mark low down the wall',
-    patch:'a damp patch in one specific place',
-    wet:'damp near pipework or plumbing'
-  }[state.where] + ', ' + ({winter:'worse in cold weather with condensation on the windows', rain:'worse during or after heavy rain', always:'present all year round'}[state.when])) : '[describe what you can see]';
+  const signs = state.signs.length ? state.signs.map(k=>({
+    tide:'a tide mark low down the wall', mould:'black spotted mould',
+    plaster:'bubbling, blown or salty plaster', patch:'a damp patch in one specific place',
+    rain:'the problem getting worse after heavy rain', winter:'the problem being worse in winter, with condensation on the windows',
+    smell:'a persistent musty smell', timber:'soft or crumbling woodwork',
+    fungus:'fungal growth, white strands or rust-red dust', above:'water coming in from above'
+  }[k])).join('; ') : '[describe what you can see]';
 
   const legal = type === 'social'
     ? `Under Awaab's Law, now that you are aware the property may be affected by a significant damp or mould hazard, I understand you must investigate within 10 working days, provide me with a written summary of findings within 3 working days of that investigation concluding, and begin any necessary safety works within 5 working days. If the hazard poses an imminent risk to health, I understand you must investigate and make the property safe within 24 hours, and offer suitable alternative accommodation at your own expense if you cannot do so in that time.\n\nPlease treat this letter as the report that starts those timescales.`
